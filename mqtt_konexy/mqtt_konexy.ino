@@ -2,6 +2,7 @@
  * Client kết nối tới Broker với ID: "ESP8266Client"
  * Topic public: "/log/JBazbe6N"
  * Public bản tin theo form Json: {"mac":"asduyaidha9dh"}
+ * Sử dụng thư viện: https://github.com/sangseu/agriculture/tree/master/LIBRARIES/PubSubClient
  * sangseu
 */
 #include <ESP8266WiFi.h>
