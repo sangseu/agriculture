@@ -26,8 +26,14 @@
 SHT1x sht1x(dataPin, clockPin);
 //=============================================
 //PubSub
-#define mqtt_server "128.199.139.40"
+//#define mqtt_server "128.199.139.40"
 const uint16_t mqtt_port = 1883;
+
+const char* mqtt_server = "103.52.92.8";//iot.konexy.com
+#define usr "quannv"
+#define pwd "123456789"
+#define topic_pub "/log/JBazbe6N"
+
 const uint16_t f_pub = 5000; //(ms)
 const uint16_t t_retry_conn_wifi = 90; //(s)
 const uint16_t t_retry_conn_mqtt = 5; //(times)
@@ -42,8 +48,8 @@ const uint16_t t_wait_config = 1; //(s)
 */
 String s2 = "viota/" + getID() + "/out";
 String s3 = "viota/" + getID() + "/in";
-const char* topic_pub = &s2[0];
-const char* topic_sub = &s3[0];
+//const char* topic_pub = &s2[0];
+//const char* topic_sub = &s3[0];
 //=============================================
 //normally DEBUG is commented out
 #define DEBUG
@@ -566,12 +572,12 @@ void reconnect() {
     // Attempt to connect
     String s = getID();
     char* ID = &s[0];
-    if (clientPS.connect(ID)) {
+    if (clientPS.connect(ID, usr, pwd)) {
       Serial.println("connected");
       // Once connected, publish an announcement...
       clientPS.publish(topic_pub, "ESP_reconnected");
       // ... and resubscribe
-      clientPS.subscribe(topic_sub);
+      //clientPS.subscribe(topic_sub);
     } else {
       Serial.print("failed, rc=");
       Serial.print(clientPS.state());
