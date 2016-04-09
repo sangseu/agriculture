@@ -1,0 +1,123 @@
+Agriculture
+===========
+Danh mục
+1. Mô tả nhanh
+2. Thư viện sử dụng
+3. Chức năng các hàm cơ bản
+4. Các thông số để Connect đến Broker
+5. Các thông số phục vụ Smart-Config
+6. Kết nối cảm biến
+7. Kịch bản hoạt động
+
+1. Mô tả nhanh
+--------------
+
+Code chạy trên ESP, giao tiếp với ngoại vi gồm: Cảm biến BH1750, SHT1x, Relay.
+ESP kết nối mạng wifi và là Client giao tiếp với Broker MQTT.
+
+2. Thư viện sử dụng
+-------------------
+
+- PubSubClient: Chạy Client MQTT
+- ArduinoJson: Encode chuỗi Json gửi dữ liệu đi
+- aJSON: Decode chuỗi Json nhận được
+  (Bởi 2 thư viện có ưu nhược điểm riêng trong việc Encode và Decode)
+- pfodESP8266WiFi: Phục vụ Smart-Config ESP
+- SH1x: Giao tiếp cảm biến SHT10
+- BH1750: Giao tiếp cảm biến BH1750
+
+3. Chức năng các hàm cơ bản
+---------------------------
+
+Phần này nhớ đâu viết đó nên a chịu khó tìm kiếm tên hàm trong chương trình.
+
++ getID
+
+	Sinh mã ID từ địa chỉ vật lý MAC của ESP. Mã này là duy nhất với mỗi ESP,
+	dùng khi connect tới Broker
+
++ setupAP
+
+	Đưa ESp vào chế độ AP để chạy http server đơn giản ở địa chỉ 10.1.1.1
+	phục vụ Smart-Config
+
++ setupWifi
+
+	Đọc SSID/Password từ eeprom để kết nối wifi. Sau một số lần kết nối không
+	thành công sẽ gọi hàm "setupAP" để phục vụ Smart-Config
+
++ callback
+
+	Hàm được gọi khi có bản tin gửi đến ESP. Tiến hành Decode chuỗi Json để 	thực hiện điều khiển relay và phản hồi trạng thái relay.
+
++ setupMqtt
+
+	Khởi tạo thông số về Server ESP sẽ kết nối đến
+
++ reconnect
+
+	Thực hiện kết nối đến server với thông số đã được khởi tạo ở hàm
+	setupMqtt.
+	Hàm được gọi khi kết nối đến server bị lost.
+
++ handleRoot
+
+	Tạo form submit ở địa chỉ 10.1.1.1 để phục vụ Smart-Config
+
++ handleConfig
+
+	Nhận POST từ trình duyệt, lấy các giá trị cấu hình ghi vào bộ nhớ eeprom.
+	Tạo trang http ở địa chỉ 10.1.1.1/config để thông báo Smart-Config thành
+	công.
+	Reset ESP để Config có hiệu lực.
+
++ loop
+
+	Vòng lặp định kì lấy dữ liệu cảm biến, encode vào chuỗi Json và Publish
+	bản tin.
+
+4. Các thông số để Connect đến Broker
+-------------------------------------
+
+mqtt_server: địa chỉ Broker
+mqtt_post: Port truyền dữ liệu
+usr: tên user của Client
+pwd: password của Client
+topic_pub: Topic sẽ publish dữ liệu
+topic_sub: Topic sẽ subscribe để nhận lệnh điều khiển
+
+5. Các thông số phục vụ Smart-Config
+------------------------------------
+
+pfodWifiWebConfigPASSWORD: mật khẩu wifi ở chế độ AP
+pfodWifiWebConfigAP: tên wifi ở chế độ AP
+
+6. Kết nối cảm biến
+-------------------
+
+https://github.com/sangseu/agriculture/blob/master/PIN-DEFINE.txt
+
+7. Kịch bản hoạt động
+---------------------
+
+Chương trình chính
+
+b1	cấp nguồn cho esp
+
+b2	esp cố gắng kết nối wifi, nếu thành công thì tiếp tục, nếu không được sẽ
+	nhảy vào chế độ smart-config.
+
+b3	kết nối server, nếu thành công thì Subscribe vào topic_sub và tiếp tục,
+	nếu không thành công thì thực hiện lại b3
+
+b4	lấy dữ liệu cảm biến và Publish vào topic_pub, lặp lại từ b1
+
+
+Chương trình smart-config
+Chương trình nhận dữ liệu subscribe và thực hiện hành động
+
+
+
+
+
+

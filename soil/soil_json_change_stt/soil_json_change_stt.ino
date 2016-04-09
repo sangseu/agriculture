@@ -32,10 +32,11 @@ const uint16_t mqtt_port = 1883;
 const char* mqtt_server = "103.52.92.8";//iot.konexy.com
 #define usr "quannv"
 #define pwd "123456789"
-#define topic_pub "/log/JBazbe6N"
+#define topic_pub "/log/ri3CgPzD"
+#define topic_sub "/log/WsDHApFW"
 
 const uint16_t f_pub = 5000; //(ms)
-const uint16_t t_retry_conn_wifi = 90; //(s)
+const uint16_t t_retry_conn_wifi = 40; //(s)
 const uint16_t t_retry_conn_mqtt = 5; //(times)
 const uint16_t t_wait_config = 1; //(s)
 
@@ -66,7 +67,7 @@ pfodESP8266BufferedClient bufferedClient;
 
 // =============== start of pfodWifiWebConfig settings ==============
 #define pfodWifiWebConfigPASSWORD "123456789"
-#define pfodWifiWebConfigAP "esp_00000004"
+#define pfodWifiWebConfigAP "esp_000000A3"
 
 // note pfodSecurity uses 19 bytes of eeprom usually starting from 0 so
 // start the eeprom address from 20 for configureWifiConfig
@@ -145,24 +146,24 @@ void setup ( void ) {
   //pinMode(wifiSetup_pin, INPUT_PULLUP);
   pinMode(wifiSetup_pin, INPUT);
   Serial.println();
-/*
-  for (int i = t_wait_config; i > 0; i--) {
-#ifdef DEBUG
-    Serial.print(i);
-    Serial.print(' ');
-#endif
-    if (digitalRead(wifiSetup_pin) == HIGH) {
-      break; // continue to config mode
+  /*
+    for (int i = t_wait_config; i > 0; i--) {
+  #ifdef DEBUG
+      Serial.print(i);
+      Serial.print(' ');
+  #endif
+      if (digitalRead(wifiSetup_pin) == HIGH) {
+        break; // continue to config mode
+      }
+      // else wait for 20sec to let the user press the button
+      delay(1000);
     }
-    // else wait for 20sec to let the user press the button
-    delay(1000);
-  }
-  Serial.println();
-  */
+    Serial.println();
+    */
   //=====================================================================
   // see if config button is pressed ~> time out connection
   if (digitalRead(wifiSetup_pin) == HIGH) {
-  
+
     inConfigMode = 1; // in config mode
     WiFi.mode(WIFI_AP_STA);
 #ifdef DEBUG
@@ -240,6 +241,7 @@ void loop() {
   {
     lastMsg = now;
 
+    /*
     SHT1x sht1x(dataPin, clockPin);
     f_soi = sht1x.readHumidity();
     f_tem = sht1x.readTemperatureC();
@@ -255,10 +257,10 @@ void loop() {
     }
     else {
       Serial.println("No SHT sensor!");
-      /*
-      data["hum"] = 0;
-      data["tem"] = 0;
-      */
+
+      //data["hum"] = 0;
+      //data["tem"] = 0;
+
       data.remove("hum");
       data.remove("tem");
     }
@@ -282,9 +284,10 @@ void loop() {
     root.printTo(json);
     char* c_json = &json[0];
     Serial.print(c_json);
-    clientPS.publish(topic_pub, c_json);
+    */
+    clientPS.publish(topic_pub, "tick");
 
-    f_soi = 0; f_tem = 0; f_lux = 0;
+    //f_soi = 0; f_tem = 0; f_lux = 0;
 
     Serial.println(" ok");
   }//end if
@@ -577,7 +580,7 @@ void reconnect() {
       // Once connected, publish an announcement...
       clientPS.publish(topic_pub, "ESP_reconnected");
       // ... and resubscribe
-      //clientPS.subscribe(topic_sub);
+      clientPS.subscribe(topic_sub);
     } else {
       Serial.print("failed, rc=");
       Serial.print(clientPS.state());
@@ -605,15 +608,62 @@ void callback(char* topic, byte* payload, unsigned int length)
   }
   Serial.println();
   Serial.println(json);
+  int id, relay, ctrl = 0;
 
-  String s_json = (String)json;
-  char* c_json = &s_json[0];
-  int ID_relay, wrt_relay;
-  bool get_status = 0;
+  pinMode(relay1, OUTPUT);
+  pinMode(relay2, OUTPUT);
 
-  StaticJsonBuffer<300> jsonBuffer;
+  int ID = 3;
+  if ( (char)payload[0] == '1' ) {
+    id = 1;
+  }
+  if ( (char)payload[0] == '2' ) {
+    id = 2;
+  }
+  if ( (char)payload[0] == '3' ) {
+    id = 3;
+  }
+  if ( (char)payload[0] == '4' ) {
+    id = 4;
+  }
 
-  JsonObject& root = jsonBuffer.parseObject(c_json);
+  if (id == ID) {
+    if ( (char)payload[2] == '0' ) {
+      ctrl = 0;
+    }
+    if ( (char)payload[2] == '1' ) {
+      ctrl = 1;
+    }
+    if ( (char)payload[1] == '1' ) {
+      digitalWrite(relay1, ctrl);
+      Serial.println("relay1");
+    }
+    if ( (char)payload[1] == '2' ) {
+      digitalWrite(relay2, ctrl);
+      Serial.println("relay2");
+    }
+  }
+
+  /*
+    String s_json = (String)json;
+    char* c_json = &s_json[0];
+    int ID_relay, wrt_relay;
+    bool get_status = 0;
+
+    StaticJsonBuffer<300> jsonBuffer;
+
+    JsonObject& root = jsonBuffer.parseObject(c_json);
+    String device_ID = root["ID"];
+    String device_ID = root["ID"];
+    String device_ID = root["ID"];
+    if (device_ID.equals(ID))
+    {
+      if ()
+    }
+    */
+
+
+  /*
   String v_cmd = root["command"];
   char* c_v_cmd = &v_cmd[0];
   JsonObject& root2 = jsonBuffer.parseObject(c_v_cmd);
@@ -648,6 +698,8 @@ void callback(char* topic, byte* payload, unsigned int length)
       digitalWrite(relay2, wrt_relay);
     }
   }
+
+
   //==========================pub status
   JsonObject& data = jsonBuffer.createObject();
   //JsonObject& stt = jsonBuffer.createObject();
@@ -673,6 +725,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     clientPS.publish(topic_pub, c_json);
   }
   else root.remove("status");
+  */
 }
 
 byte readgpio()
@@ -682,7 +735,7 @@ byte readgpio()
   byte r = 0;
   r1 |= digitalRead(relay1) << 0;
   r2 |= digitalRead(relay2) << 1;
-  r = r1|r2;
+  r = r1 | r2;
   return r;
 }
 
