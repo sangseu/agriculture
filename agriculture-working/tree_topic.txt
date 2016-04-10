@@ -1,0 +1,31 @@
+Topic for Smart Agriculture:
+
+
+root/agriculture/air
+root/agriculture/air/esp
+root/agriculture/air/esp/count
+root/agriculture/air/esp/control
+root/agriculture/air/esp/stt
+root/agriculture/air/esp/lux
+root/agriculture/air/esp/hum
+root/agriculture/air/esp/tem
+---stt:connect/disconnect, l:lux, h:hum, t:tem, @:end message
+---message lxxx@
+---message hxxx@
+---message txxx@
+
+root/agriculture/soil
+root/agriculture/soil/esp
+root/agriculture/soil/esp/count
+root/agriculture/soil/esp/control
+root/agriculture/soil/esp/stt
+root/agriculture/soil/esp/soi
+root/agriculture/soil/esp/tem
+---s:soi, t:tem, @:end message
+---message sxxx@
+---message txxx@
+---control level to control relay on esp-board.
+---mess = '1' -> on-relay(relay<->GPIO4)
+
+
+root/agriculture/water

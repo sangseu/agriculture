@@ -1,0 +1,17 @@
+
+Message arrived [viaot/esp00000001/in] 
+{"command":{"gpio":{"ID":0, "write":0}}}|�?�~ @���?command
+{"gpio":{"ID":0,"write":0}}
+{"ID":0,"write":0}
+
+[parse gpio]
+00
+status 0
+{"command":{"gpio":{"ID":0,"write":0}},"status":{"m_gpio":{"lst":"0","stt":1}}}
+{"command":{"gpio":{"ID":0,"write":0}},"status":{"m_gpio":{"lst":"0","stt":1}}}
+No SHT sensor!
+[1]{"ID":"00000001"}
+No lux sensor!
+[2]{"ID":"00000001"}
+{"data":{"ID":"00000001"}} ok
+

@@ -1,0 +1,12 @@
+SHT10
+#define dataPin  14
+#define clockPin 12
+
+BH1750
+int BH1750_address = 0x23; // i2c Addresse LOW
+int BH1750_address = 0x5C; // i2c Addresse HIGH
+Wire.begin(12,13);
+
+RESET
+pull up 10K resistor: RESET, GPIO15, GPIO0
+#Sau khi nap chuong trinh xong, can RESET esp de hoat dong binh thuong, che do softRESET se hoat dong.
